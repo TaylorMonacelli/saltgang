@@ -34,7 +34,7 @@ def main(args):
         print(rendered)
 
     elif args.command == "url":
-        meta.main()
+        meta.main(args)
 
     elif args.command in ["quick", "quickstart"]:
         quickstart.main(args=args)
@@ -43,7 +43,7 @@ def main(args):
         panel.main()
 
     elif args.command in ["enc", "encassist"]:
-        encassist.main(args=args)
+        encassist.main(args)
 
     else:
         raise ValueError("should not get here since required=True")

@@ -11,7 +11,7 @@ import zipfile
 
 import requests
 
-from saltgang import mylogger
+from saltgang import logger as loggermod
 
 
 def add_arguments(parser):
@@ -136,8 +136,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
     args = parser.parse_args()
-
-    if args.debug:
-        mylogger.stream.setLevel(logging.DEBUG)
+    loggermod.setup_logging(args.loglevel)
 
     main(args)

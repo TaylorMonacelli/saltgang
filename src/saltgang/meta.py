@@ -1,22 +1,18 @@
 import argparse
 import configparser
-import logging
 import pathlib
 import platform
 import subprocess
 import sys
 import tempfile
 
-from saltgang import common, mylogger
-
-
-def add_arguments(parser):
-    parser.add_argument("-d", "--debug", default=False, action="store_true")
+from saltgang import args as argsmod
+from saltgang import common
+from saltgang import logger as loggermod
 
 
 def add_parser(subparsers):
-    parser = subparsers.add_parser("url", help="show the url of where we push zip")
-    add_arguments(parser)
+    subparsers.add_parser("url", help="show the url of where we push zip")
 
 
 def to_clipboard(text):
@@ -39,7 +35,7 @@ def to_clipboard(text):
         print("couldn't copy to clipboard", file=sys.stderr)
 
 
-def main():
+def main(args):
     cwd = pathlib.Path.cwd()
 
     if "spectra_installer" not in cwd.parts:
@@ -69,10 +65,8 @@ https://streambox-spectra.s3-us-west-2.amazonaws.com/{version}/win/spectra_win_{
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    add_arguments(parser)
+    argsmod.add_common_args(parser)
     args = parser.parse_args()
+    loggermod.setup_logging(args.loglevel)
 
-    if args.debug:
-        mylogger.stream.setLevel(logging.DEBUG)
-
-    main()
+    main(args)

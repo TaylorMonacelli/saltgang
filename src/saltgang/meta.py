@@ -11,6 +11,10 @@ from saltgang import common
 from saltgang import logger as loggermod
 
 
+def add_arguments(parser):
+    argsmod.add_common_args(parser)
+
+
 def add_parser(subparsers):
     subparsers.add_parser("url", help="show the url of where we push zip")
 
@@ -65,7 +69,7 @@ https://streambox-spectra.s3-us-west-2.amazonaws.com/{version}/win/spectra_win_{
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    argsmod.add_common_args(parser)
+    add_arguments(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)
 

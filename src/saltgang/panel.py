@@ -72,14 +72,16 @@ import zipfile
 
 import magic
 
-from saltgang import common, mylogger
+from saltgang import args as argsmod
+from saltgang import common
+from saltgang import logger as loggermod
 
 this = sys.modules[__name__]
 this.project_path = None
 
 
 def add_arguments(parser):
-    parser.add_argument("-d", "--debug", default=False, action="store_true")
+    argsmod.add_common_args(parser)
 
 
 def add_parser(subparsers):
@@ -207,7 +209,7 @@ def extract(path_src=None, extract_to_dir=None):
         raise ValueError("I don't know how to extract {path}")
 
 
-def main():
+def main(args):
     logger = logging.getLogger(__name__)
 
     this.project_path = common.project_path()
@@ -269,8 +271,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
     args = parser.parse_args()
+    loggermod.setup_logging(args.loglevel)
 
-    if args.debug:
-        mylogger.stream.setLevel(logging.DEBUG)
-
-    main()
+    main(args)

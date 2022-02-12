@@ -3,13 +3,19 @@ import logging
 import re
 import subprocess
 
-from saltgang import mylogger
+from saltgang import args as argsmod
+from saltgang import logger as loggermod
+
+_logger = logging.getLogger(__name__)
+
+
+def add_arguments(parser):
+    argsmod.add_common_args(parser)
 
 
 class Ytt:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.logger.debug(f"creating instance of {type(self)}")
+        _logger.debug(f"creating instance of {type(self)}")
         self.installed = None
         self.check_installed()
 
@@ -33,11 +39,7 @@ class Ytt:
             self.installed = False
 
 
-def add_arguments(parser):
-    parser.add_argument("-d", "--debug", default=False, action="store_true")
-
-
-def main():
+def main(args):
     Ytt()
 
 
@@ -45,8 +47,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
     args = parser.parse_args()
+    loggermod.setup_logging(args.loglevel)
 
-    if args.debug:
-        mylogger.stream.setLevel(logging.DEBUG)
-
-    main()
+    main(args)

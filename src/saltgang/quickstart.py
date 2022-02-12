@@ -16,7 +16,9 @@ import magic
 import pdfminer.high_level
 import yaml
 
-from saltgang import common, mylogger
+from saltgang import args as argsmod
+from saltgang import common
+from saltgang import logger as loggermod
 
 """
 Expected
@@ -36,9 +38,9 @@ output-quickstart-guide/staging
 
 
 def add_arguments(parser):
+    argsmod.add_common_args(parser)
     parser.add_argument("--force-fetch", default=False, action="store_true")
     parser.add_argument("--upload", default=False, action="store_true")
-    parser.add_argument("-d", "--debug", default=False, action="store_true")
 
 
 def add_parser(subparsers):
@@ -50,7 +52,7 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
-def main(args=None):
+def main(args):
     logger = logging.getLogger(__name__)
 
     project_path = common.project_path()
@@ -231,8 +233,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
     args = parser.parse_args()
+    loggermod.setup_logging(args.loglevel)
 
-    if args.debug:
-        mylogger.stream.setLevel(logging.DEBUG)
-
-    main()
+    main(args)

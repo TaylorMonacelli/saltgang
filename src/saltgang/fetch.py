@@ -11,12 +11,13 @@ import zipfile
 
 import requests
 
+from saltgang import args as argsmod
 from saltgang import logger as loggermod
 
 
 def add_arguments(parser):
+    argsmod.add_common_args(parser)
     parser.add_argument("url", help="url to download")
-    parser.add_argument("-d", "--debug", default=False, action="store_true")
 
 
 def add_parser(subparsers):

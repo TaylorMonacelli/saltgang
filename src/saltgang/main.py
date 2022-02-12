@@ -37,10 +37,10 @@ def main(args):
         meta.main(args)
 
     elif args.command in ["quick", "quickstart"]:
-        quickstart.main(args=args)
+        quickstart.main(args)
 
     elif args.command in ["panel", "ecp"]:
-        panel.main()
+        panel.main(args)
 
     elif args.command in ["enc", "encassist"]:
         encassist.main(args)

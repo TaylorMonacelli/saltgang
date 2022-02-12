@@ -10,6 +10,9 @@ from saltgang import ytt
 project_path = common.project_path()
 
 
+_logger = logging.getLogger(__name__)
+
+
 def add_arguments(parser):
     argsmod.add_common_args(parser)
     group = parser.add_mutually_exclusive_group(required=True)
@@ -37,7 +40,6 @@ class Encassit:
     """
 
     def __init__(self, inlist, outpath):
-        self.logger = logging.getLogger(__name__)
         self.inlist = inlist
         self.project_path = project_path
         self.main_path = common.project_path() / "installer/encassist/encassist.yml"
@@ -46,7 +48,7 @@ class Encassit:
 
     def initialze(self):
         if not self.main_path.exists():
-            self.logger.exception(f"Oops, I can't find {self.main_path}")
+            _logger.exception(f"Oops, I can't find {self.main_path}")
             ValueError(self.main_path)
         self.logger.debug("{}".format(self.inlist))
 
@@ -86,12 +88,10 @@ class Encassit:
 
 
 def main(args):
-    logger = logging.getLogger(__name__)
-
-    logger.debug(f"{project_path=}")
+    _logger.debug(f"{project_path=}")
 
     if not ytt.Ytt().installed:
-        logger.fatal("Can't find ytt")
+        _logger.fatal("Can't find ytt")
         raise ValueError("Can't find ytt")
 
     if args.macos:

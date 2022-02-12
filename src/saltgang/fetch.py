@@ -127,10 +127,9 @@ class Helper:
         mkdir(self.original_dir)
 
 
-def main(url):
+def main(args):
     validate_cwd()
-
-    Helper(url).download()
+    Helper(args.url).download()
 
 
 if __name__ == "__main__":
@@ -141,4 +140,4 @@ if __name__ == "__main__":
     if args.debug:
         mylogger.stream.setLevel(logging.DEBUG)
 
-    main(args.url)
+    main(args)

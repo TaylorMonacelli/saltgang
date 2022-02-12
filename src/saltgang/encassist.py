@@ -2,12 +2,16 @@ import argparse
 import logging
 import subprocess
 
-from saltgang import common, mylogger, ytt
+from saltgang import args as argsmod
+from saltgang import common
+from saltgang import logger as loggermod
+from saltgang import ytt
 
 project_path = common.project_path()
 
 
 def add_arguments(parser):
+    argsmod.add_common_args(parser)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--macos", action="store_true")
     group.add_argument("--linux", action="store_true")
@@ -81,7 +85,7 @@ class Encassit:
             self.outpath.write_text(stdout.decode())
 
 
-def main(args=None):
+def main(args):
     logger = logging.getLogger(__name__)
 
     logger.debug(f"{project_path=}")
@@ -120,8 +124,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
     args = parser.parse_args()
+    loggermod.setup_logging(args.loglevel)
 
-    if args.debug:
-        mylogger.stream.setLevel(logging.DEBUG)
-
-    main()
+    main(args)

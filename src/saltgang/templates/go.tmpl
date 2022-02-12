@@ -1,0 +1,60 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"gopkg.in/ini.v1"
+)
+
+func main() {
+
+        ini.PrettyFormat = false
+
+	cfg, err := ini.Load("encassist.ini")
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+
+	var settings = []struct {
+		section string
+		key     string
+		value   string
+		force   bool
+	}{
+           {%- for setting in settings -%}
+            {%- if setting.alex_override_value is defined %}
+             {
+              section: "encassist",
+              key: "{{setting.name}}",
+              value: "{{setting.alex_override_value|replace('\\','\\\\')}}",
+              force: {{ (setting.force_update if setting.force_update else 'false')|lower }},
+             },
+            {%- else -%}
+             {%- if setting.hn_says_set_default %}
+              {
+               section: "encassist",
+               key: "{{setting.name}}",
+               value: "{{setting.default|replace('\\','\\\\')}}",
+               force: {{(setting.force_update if setting.force_update else 'false')|lower}},
+              },
+             {%- endif -%}
+            {%- endif -%}
+           {% endfor -%}
+        }
+
+	for _, elem := range settings {
+
+		exists := cfg.Section(elem.section).HasKey(elem.key)
+                fmt.Print(elem.key, "\n")
+		if !exists {
+			cfg.Section(elem.section).Key(elem.key).SetValue(elem.value)
+		}
+		if elem.force {
+			cfg.Section(elem.section).Key(elem.key).SetValue(elem.value)
+		}
+	}
+
+        cfg.SaveTo("encassist.ini")
+}

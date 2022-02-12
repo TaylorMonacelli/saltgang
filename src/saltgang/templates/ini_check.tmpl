@@ -1,0 +1,20 @@
+import configparser
+import pathlib
+
+ini_path = pathlib.Path(r"C:\Program Files\Streambox\Spectra\dist\encassist.ini")
+
+config = configparser.RawConfigParser()
+
+def test_set_defaults_consume_defaults():
+    config.read(ini_path)
+    assert "encassist" in config
+    encassist = config["encassist"]
+{%- for setting in settings -%}
+ {%- if setting.alex_override_value is defined %}
+    assert encassist.get("{{setting.name}}") == "{{setting.alex_override_value}}"
+ {%- else -%}
+  {%- if setting.hn_says_set_default %}
+    assert encassist.get("{{setting.name}}") == "{{setting.default}}"
+  {%- endif -%}
+ {%- endif -%}
+{% endfor -%}

@@ -1,0 +1,3 @@
+{%- set NEWLINE='\n' -%}[encassist]
+{%- for setting in settings %}{{NEWLINE}}{%- if setting.alex_override_value is defined %}{{setting.name}}={{setting.alex_override_value}}{% else %}{%- if setting.hn_says_set_default %}{{setting.name}}={{setting.default}}{% else %};{{setting.name}}={{setting.default}}{%- endif -%}{%- endif -%}
+{%- endfor %}

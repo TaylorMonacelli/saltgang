@@ -1,0 +1,13 @@
+[encassist]
+{% for setting in settings %}
+{%- if setting.purpose -%}
+;---------------------------{% set purpose = setting.purpose.split('\n') -%}
+{% for purpose_line in purpose %}
+;{{ purpose_line }}
+{%- endfor %}
+;---------------------------
+{% endif -%}
+{{setting.name}}={{setting.default}}
+{% else -%}
+;{{setting.name}}={{setting.default}}
+{% endfor %}

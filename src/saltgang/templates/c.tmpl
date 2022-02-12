@@ -1,0 +1,15 @@
+{% set arr=[] %}
+{%- for setting in settings -%}
+ {%- if setting.alex_override_value is defined %}
+{%- set spectra_setting %}{"encassist", "{{setting.name}}", "{{setting.alex_override_value}}" }{% endset -%}
+ {%- else -%}
+  {%- if setting.hn_says_set_default %}
+{%- set spectra_setting %}{"encassist", "{{setting.name}}", "{{setting.default}}" }{% endset -%}
+  {%- endif -%}
+ {%- endif -%}
+{%- if spectra_setting %}
+{%- set arr=arr.append(spectra_setting) -%}
+{%- endif -%}
+{% endfor -%}
+char data[][3][100] = { {{ arr|join(',
+') }} }

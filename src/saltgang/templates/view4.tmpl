@@ -1,0 +1,4 @@
+[encassist]
+{% for setting in settings %}{%- if setting.hn_says_set_default -%}{{setting.name}}={{setting.default}}
+{% endif -%}
+{% endfor %}

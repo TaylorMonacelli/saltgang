@@ -50,7 +50,7 @@ class Encassit:
         if not self.main_path.exists():
             _logger.exception(f"Oops, I can't find {self.main_path}")
             ValueError(self.main_path)
-        self.logger.debug("{}".format(self.inlist))
+        _logger.debug("{}".format(self.inlist))
 
     def run(self):
         cmd = [
@@ -61,7 +61,7 @@ class Encassit:
             str(self.main_path),
         ]
 
-        self.logger.debug("inlist:{}".format(self.inlist))
+        _logger.debug("inlist:{}".format(self.inlist))
 
         x = []
         for i in self.inlist:
@@ -69,9 +69,9 @@ class Encassit:
             x.append(str(i))
 
         cmd.extend(x)
-        self.logger.debug("cmd:{}".format(cmd))
+        _logger.debug("cmd:{}".format(cmd))
 
-        self.logger.debug("running command {}".format(" ".join(cmd)))
+        _logger.debug("running command {}".format(" ".join(cmd)))
 
         process = subprocess.Popen(
             cmd,
@@ -82,7 +82,7 @@ class Encassit:
 
         stdout, stderr = process.communicate()
         if stderr:
-            self.logger.warning("{}".format(stderr.decode()))
+            _logger.warning("{}".format(stderr.decode()))
         else:
             self.outpath.write_text(stdout.decode())
 

@@ -8,6 +8,7 @@ import string
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 
 import furl
@@ -121,7 +122,15 @@ def main(args):
         gdown.download(source.url, str(tmp_path), quiet=True)
         tmp_path.rename(step10_path)
 
+    sleep = 10
+    logging.debug(f"Starting sleep for for {sleep} for debug")
+    time.sleep(sleep)
+    logging.debug("Ending sleep for debug")
+
     file_type = magic.from_file(str(step10_path), mime=True)
+    logging.debug(f"Starting sleep for for {sleep} for debug")
+    time.sleep(sleep)
+    logging.debug("Ending sleep for debug")
 
     logger.debug(f"file {str(step10_path)} is type {file_type}")
 

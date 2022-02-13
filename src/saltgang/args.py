@@ -33,6 +33,7 @@ def add_common_args(parser):
 
 
 parser = argparse.ArgumentParser()
+add_common_args(parser)
 parser.add_argument(
     "--version",
     action="version",

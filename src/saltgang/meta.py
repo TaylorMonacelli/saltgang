@@ -16,7 +16,8 @@ def add_arguments(parser):
 
 
 def add_parser(subparsers):
-    subparsers.add_parser("url", help="show the url of where we push zip")
+    parser = subparsers.add_parser("url", help="show the url of where we push zip")
+    add_arguments(parser)
 
 
 def to_clipboard(text):

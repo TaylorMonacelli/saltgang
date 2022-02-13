@@ -8,7 +8,6 @@ import string
 import subprocess
 import sys
 import tempfile
-import time
 import zipfile
 
 import furl
@@ -116,21 +115,14 @@ def main(args):
     pathlib.Path.mkdir(step20_path, parents=True, exist_ok=True)
     pathlib.Path.mkdir(step30_path, parents=True, exist_ok=True)
 
+    tmp_path = pathlib.Path(tempfile.gettempdir()) / step10_path.name
+    tmp_path.unlink(missing_ok=True)
+
     if not step10_path.exists() or args.force_fetch:
-        tmp_path = pathlib.Path(tempfile.gettempdir()) / step10_path.name
-        tmp_path.unlink(missing_ok=True)
         gdown.download(source.url, str(tmp_path), quiet=True)
         tmp_path.rename(step10_path)
 
-    sleep = 10
-    logging.debug(f"Starting sleep for for {sleep} for debug")
-    time.sleep(sleep)
-    logging.debug("Ending sleep for debug")
-
     file_type = magic.from_file(str(step10_path), mime=True)
-    logging.debug(f"Starting sleep for for {sleep} for debug")
-    time.sleep(sleep)
-    logging.debug("Ending sleep for debug")
 
     logger.debug(f"file {str(step10_path)} is type {file_type}")
 

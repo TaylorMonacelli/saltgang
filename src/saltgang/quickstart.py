@@ -212,6 +212,8 @@ def main(args):
             "read=uri=http://acs.amazonaws.com/groups/global/AllUsers",
             "--region",
             "us-west-2",
+            "--profile",
+            "spectra_deploy",
         ]
 
         logger.debug(sync)

@@ -31,7 +31,7 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
-class Encassit:
+class Encassist:
     # pylint: disable=line-too-long
     """
     ytt -f encassist/encassist.yml -f encassist/values/macos/*.yml >encassist.yml
@@ -116,7 +116,7 @@ def main(args):
         raise ValueError("encassist: no args")
 
     outpath = project_path / "installer/encassist.yml"
-    enc = Encassit(inlist=inpaths, outpath=outpath)
+    enc = Encassist(inlist=inpaths, outpath=outpath)
     enc.run()
 
 

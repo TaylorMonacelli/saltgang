@@ -1,6 +1,10 @@
 import argparse
 import logging
+import pathlib
 import subprocess
+import typing
+from dataclasses import dataclass, field
+from typing import Any, List, Mapping
 
 from saltgang import args as argsmod
 from saltgang import common
@@ -15,6 +19,11 @@ _logger = logging.getLogger(__name__)
 
 def add_arguments(parser):
     argsmod.add_common_args(parser)
+    parser.add_argument(
+        "--yaml-path",
+        help="provide the path to encassist yaml file",
+    )
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--macos", action="store_true")
     group.add_argument("--linux", action="store_true")
@@ -31,6 +40,44 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
+class FileReadExeption(Exception):
+    def __init__(self, value: str, message: str) -> None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
+
+@dataclass
+class FilesValidator:
+    paths: typing.List[str] = field(default_factory=list)
+
+    def are_readable(self):
+        fails = []
+        for _str in self.paths:
+            path = pathlib.Path(_str)
+            if not path.exist():
+                fails.append(path)
+                continue
+            if path.read_text():
+                fails.append(path)
+                continue
+        if fails:
+            raise FileReadExeption(value=fails, message=f"Can't read paths {fails}")
+
+
+@dataclass(init=False)
+class ArgHolder:
+    args: List[Any]
+    kwargs: Mapping[Any, Any]
+
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+
+a = ArgHolder(1, 2, three=3)
+
+
 class Encassist:
     # pylint: disable=line-too-long
     """
@@ -39,17 +86,20 @@ class Encassist:
     ytt -f encassist/encassist.yml -f encassist/values/win/*.yml -f encassist/values/win/universal/*.yml >encassist.yml
     """
 
-    def __init__(self, inlist, outpath):
-        self.inlist = inlist
+    def __init__(
+        self, main_yaml: pathlib.Path, values_yaml: pathlib.Path, out_yaml: pathlib.Path
+    ):
+        self.main_path = common.project_path() / "installer/encassist/encassist.yml"
+        self.inlist = values_yaml
         self.project_path = project_path
         self.main_path = common.project_path() / "installer/encassist/encassist.yml"
-        self.outpath = outpath
+        self.outpath = out_yaml
         self.initialze()
 
     def initialze(self):
         if not self.main_path.exists():
             _logger.exception(f"Oops, I can't find {self.main_path}")
-            ValueError(self.main_path)
+            raise ValueError(self.main_path)
         _logger.debug("{}".format(self.inlist))
 
     def run(self):
@@ -65,7 +115,7 @@ class Encassist:
 
         x = []
         for i in self.inlist:
-            x.append("-f")
+            x.append("--file")
             x.append(str(i))
 
         cmd.extend(x)
@@ -116,7 +166,7 @@ def main(args):
         raise ValueError("encassist: no args")
 
     outpath = project_path / "installer/encassist.yml"
-    enc = Encassist(inlist=inpaths, outpath=outpath)
+    enc = Encassist(values_yaml=inpaths, out_yaml=outpath)
     enc.run()
 
 

@@ -1,0 +1,23 @@
+common:
+  configdir: build/config
+  main: ${.configdir}/encassist/encassist.yml
+  outdir: ${.configdir}
+sku:
+  avid:
+    outpath: ${common.outdir}/avid.yml
+    value_paths:
+      - ${common.configdir}/encassist/values/win/values.yml
+      - ${common.configdir}/encassist/values/win/avid/values.yml
+  linux:
+    outpath: ${common.outdir}/linux.yml
+    value_paths:
+      - ${common.configdir}/encassist/values/linux/values.yml
+  macos:
+    outpath: ${common.outdir}/macos.yml
+    value_paths:
+      - ${common.configdir}/encassist/values/macos/values.yml
+  universal:
+    outpath: ${common.outdir}/avid.yml
+    value_paths:
+      - ${common.configdir}/encassist/values/win/values.yml
+      - ${common.configdir}/encassist/values/win/universal/values.yml

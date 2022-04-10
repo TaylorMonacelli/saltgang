@@ -104,7 +104,7 @@ class Ytt:
 
         stdout, stderr = process.communicate()
         if stderr:
-            _logger.warning("{}".format(stderr.decode()))
+            _logger.fatal("{}".format(stderr.decode()))
         else:
             self.params.outpath.write_text(stdout.decode())
 

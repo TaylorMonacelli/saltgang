@@ -1,6 +1,7 @@
 import argparse
 import logging
-import pathlib
+
+from omegaconf import OmegaConf
 
 from saltgang import logger as loggermod
 from saltgang import ytt as yttmod
@@ -26,9 +27,14 @@ def add_arguments(parser):
         const=logging.DEBUG,
     )
     parser.add_argument(
-        "--config_dir",
+        "--config_basedir",
         required=True,
-        help="provide the base direct path to encassist yaml files, eg --config_dir tmp",
+        help="provide the base direct path to encassist yaml files",
+    )
+    parser.add_argument(
+        "--conf",
+        default="config.yml",
+        help="path to config.yml",
     )
     parser.add_argument(
         "--yaml-path",
@@ -56,47 +62,39 @@ def main(args):
         _logger.fatal("Can't find ytt")
         raise FileNotFoundError("Can't find ytt")
 
-    basedir = pathlib.Path(args.config_dir)
     ytt_params = None
 
+    conf = OmegaConf.load(args.conf)
+    conf.common.configdir = args.config_basedir
+
+    values = None
+    sku = None
+
     if args.macos:
-        ytt_params = yttmod.YttParams(
-            main=basedir / "encassist/encassist.yml",
-            values=[basedir / "encassist/values/macos/values.yml"],
-            outpath="macos.yml",
-        )
+        sku = "macos"
 
     elif args.win_avid:
-        ytt_params = yttmod.YttParams(
-            main=basedir / "encassist/encassist.yml",
-            values=[
-                basedir / "encassist/values/win/values.yml",
-                basedir / "encassist/values/win/avid/values.yml",
-            ],
-            outpath="avid.yml",
-        )
+        sku = "avid"
 
     elif args.linux:
-        ytt_params = yttmod.YttParams(
-            main=basedir / "encassist/encassist.yml",
-            values=[basedir / "encassist/values/linux/values.yml"],
-            outpath="linux.yml",
-        )
+        sku = "linux"
 
     elif args.win_universal:
-        ytt_params = yttmod.YttParams(
-            main=basedir / "encassist/encassist.yml",
-            values=[
-                basedir / "encassist/values/win/values.yml",
-                basedir / "encassist/values/win/universal/values.yml",
-            ],
-            outpath="universal.yml",
-        )
+        sku = "universal"
 
     else:
         raise ValueError("encassist: no args")
 
-    ytt_params.set_basedir(basedir)
+    values = conf.sku[sku].value_paths
+    outpath = conf.sku[sku].outpath
+
+    ytt_params = yttmod.YttParams(
+        main=conf.common.main,
+        values=values,
+        outpath=outpath,
+    )
+
+    ytt_params.set_basedir(conf.common.configdir)
     ytt = yttmod.Ytt(ytt_params)
     ytt.run()
 

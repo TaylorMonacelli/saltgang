@@ -2,6 +2,7 @@ import argparse
 import logging
 import pathlib
 import re
+import shlex
 import subprocess
 from dataclasses import dataclass
 from typing import List
@@ -34,12 +35,16 @@ def add_arguments(parser):
 class YttParams:
     main: pathlib.Path
     values: List[pathlib.Path]
-    out: pathlib.Path
+    outpath: pathlib.Path
+    basedir: pathlib.Path = None
 
-    def __init__(self, main: str, values: List[str], out: str) -> None:
+    def set_basedir(self, path: pathlib.Path) -> None:
+        self.basedir = path
+
+    def __init__(self, main: str, values: List[str], outpath: str) -> None:
         self.main = pathlib.Path(main)
         self.values = [pathlib.Path(x) for x in values]
-        self.out = pathlib.Path(out)
+        self.outpath = pathlib.Path(outpath)
 
     def validate(self):
         for path in [self.main, *self.values]:
@@ -48,12 +53,13 @@ class YttParams:
 
 
 class Ytt:
-    def __init__(self):
-        _logger.debug(f"creating instance of {type(self)}")
+    def __init__(self, params):
         self.installed = None
+        self.params = params
         self.check_installed()
 
-    def check_installed(self):
+    @classmethod
+    def check_installed(cls):
         process = subprocess.Popen(
             "ytt version",
             shell=True,
@@ -67,10 +73,40 @@ class Ytt:
 
             if not re.search(r"ytt version \d+\.\d+", stdout.decode()):
                 raise ValueError("Can't find ytt installed")
-            self.installed = True
+            return True
         except ValueError as ex:
-            self.logger.exception(ex)
-            self.installed = False
+            _logger.exception(ex)
+
+    def run(self):
+        cmd = [
+            "ytt",
+            "--output",
+            "yaml",
+        ]
+
+        x = ["--file", str(self.params.main.resolve())]
+        cmd.extend(x)
+
+        for param in self.params.values:
+            x = []
+            x.append("--file")
+            x.append(str(param.resolve()))
+            cmd.extend(x)
+
+        cmdstr = shlex.join(cmd)
+        _logger.debug(cmdstr)
+
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        stdout, stderr = process.communicate()
+        if stderr:
+            _logger.warning("{}".format(stderr.decode()))
+        else:
+            self.params.outpath.write_text(stdout.decode())
 
 
 def main(args):

@@ -1,10 +1,9 @@
 import argparse
 import logging
 import pathlib
-import subprocess
 
 from saltgang import logger as loggermod
-from saltgang import ytt
+from saltgang import ytt as yttmod
 
 _logger = logging.getLogger(__name__)
 
@@ -52,107 +51,54 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
-class Encassist:
-    # pylint: disable=line-too-long
-    """
-    ytt -f encassist/encassist.yml -f encassist/values/macos/*.yml >encassist.yml
-    ytt -f encassist/encassist.yml -f encassist/values/win/*.yml -f encassist/values/win/avid/*.yml >encassist.yml
-    ytt -f encassist/encassist.yml -f encassist/values/win/*.yml -f encassist/values/win/universal/*.yml >encassist.yml
-    """
-
-    def __init__(self, dirconfig: str, ytt: ytt.YttParams):
-        self.config_basedir = dirconfig
-        self.main_path = ytt.main
-        self.inlist = ytt.values
-        self.outpath = ytt.out
-        # self.initialze()
-
-    def initialze(self):
-        if not self.main_path.exists():
-            _logger.exception(f"Oops, I can't find {self.main_path}")
-            raise ValueError(self.main_path)
-        _logger.debug("{}".format(self.inlist))
-
-    def run(self):
-        cmd = [
-            "ytt",
-            "--output",
-            "yaml",
-            "-f",
-            str(self.main_path),
-        ]
-
-        _logger.debug("inlist:{}".format(self.inlist))
-
-        x = []
-        for i in self.inlist:
-            x.append("--file")
-            x.append(str(i))
-
-        cmd.extend(x)
-        _logger.debug("cmd:{}".format(cmd))
-
-        _logger.debug("running command {}".format(" ".join(cmd)))
-
-        process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-
-        stdout, stderr = process.communicate()
-        if stderr:
-            _logger.warning("{}".format(stderr.decode()))
-        else:
-            self.outpath.write_text(stdout.decode())
-
-
 def main(args):
-    if not ytt.Ytt().installed:
+    if not yttmod.Ytt.check_installed():
         _logger.fatal("Can't find ytt")
         raise FileNotFoundError("Can't find ytt")
 
     basedir = pathlib.Path(args.config_dir)
+    ytt_params = None
 
     if args.macos:
-        ytt_params = ytt.YttParams(
+        ytt_params = yttmod.YttParams(
             main=basedir / "encassist/encassist.yml",
             values=[basedir / "encassist/values/macos/values.yml"],
-            out="macos.yml",
+            outpath="macos.yml",
         )
 
     elif args.win_avid:
-        ytt_params = ytt.YttParams(
+        ytt_params = yttmod.YttParams(
             main=basedir / "encassist/encassist.yml",
             values=[
                 basedir / "encassist/values/win/values.yml",
                 basedir / "encassist/values/win/avid/values.yml",
             ],
-            out="avid.yml",
+            outpath="avid.yml",
         )
 
     elif args.linux:
-        ytt_params = ytt.YttParams(
+        ytt_params = yttmod.YttParams(
             main=basedir / "encassist/encassist.yml",
             values=[basedir / "encassist/values/linux/values.yml"],
-            out="linux.yml",
+            outpath="linux.yml",
         )
 
     elif args.win_universal:
-        ytt_params = ytt.YttParams(
+        ytt_params = yttmod.YttParams(
             main=basedir / "encassist/encassist.yml",
             values=[
                 basedir / "encassist/values/win/values.yml",
                 basedir / "encassist/values/win/universal/values.yml",
             ],
-            out="universal.yml",
+            outpath="universal.yml",
         )
 
     else:
         raise ValueError("encassist: no args")
 
-    enc = Encassist(args.config_dir, ytt_params)
-    enc.run()
+    ytt_params.set_basedir(basedir)
+    ytt = yttmod.Ytt(ytt_params)
+    ytt.run()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,10 @@
 import argparse
 import logging
+import pathlib
 import re
 import subprocess
+from dataclasses import dataclass
+from typing import List
 
 from saltgang import logger as loggermod
 
@@ -25,6 +28,23 @@ def add_arguments(parser):
         action="store_const",
         const=logging.DEBUG,
     )
+
+
+@dataclass(init=False)
+class YttParams:
+    main: pathlib.Path
+    values: List[pathlib.Path]
+    out: pathlib.Path
+
+    def __init__(self, main: str, values: List[str], out: str) -> None:
+        self.main = pathlib.Path(main)
+        self.values = [pathlib.Path(x) for x in values]
+        self.out = pathlib.Path(out)
+
+    def validate(self):
+        for path in [self.main, *self.values]:
+            if not path.exists():
+                raise FileNotFoundError(path)
 
 
 class Ytt:

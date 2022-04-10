@@ -2,16 +2,9 @@ import argparse
 import logging
 import pathlib
 import subprocess
-import typing
-from dataclasses import dataclass, field
-from typing import Any, List, Mapping
 
-from saltgang import common
 from saltgang import logger as loggermod
 from saltgang import ytt
-
-project_path = common.project_path()
-
 
 _logger = logging.getLogger(__name__)
 
@@ -34,6 +27,11 @@ def add_arguments(parser):
         const=logging.DEBUG,
     )
     parser.add_argument(
+        "--config_dir",
+        required=True,
+        help="provide the base direct path to encassist yaml files, eg --config_dir tmp",
+    )
+    parser.add_argument(
         "--yaml-path",
         help="provide the path to encassist yaml file",
     )
@@ -54,44 +52,6 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
-class FileReadExeption(Exception):
-    def __init__(self, value: str, message: str) -> None:
-        self.value = value
-        self.message = message
-        super().__init__(message)
-
-
-@dataclass
-class FilesValidator:
-    paths: typing.List[str] = field(default_factory=list)
-
-    def are_readable(self):
-        fails = []
-        for _str in self.paths:
-            path = pathlib.Path(_str)
-            if not path.exist():
-                fails.append(path)
-                continue
-            if path.read_text():
-                fails.append(path)
-                continue
-        if fails:
-            raise FileReadExeption(value=fails, message=f"Can't read paths {fails}")
-
-
-@dataclass(init=False)
-class ArgHolder:
-    args: List[Any]
-    kwargs: Mapping[Any, Any]
-
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
-
-a = ArgHolder(1, 2, three=3)
-
-
 class Encassist:
     # pylint: disable=line-too-long
     """
@@ -100,15 +60,12 @@ class Encassist:
     ytt -f encassist/encassist.yml -f encassist/values/win/*.yml -f encassist/values/win/universal/*.yml >encassist.yml
     """
 
-    def __init__(
-        self, main_yaml: pathlib.Path, values_yaml: pathlib.Path, out_yaml: pathlib.Path
-    ):
-        self.main_path = common.project_path() / "installer/encassist/encassist.yml"
-        self.inlist = values_yaml
-        self.project_path = project_path
-        self.main_path = common.project_path() / "installer/encassist/encassist.yml"
-        self.outpath = out_yaml
-        self.initialze()
+    def __init__(self, dirconfig: str, ytt: ytt.YttParams):
+        self.config_basedir = dirconfig
+        self.main_path = ytt.main
+        self.inlist = ytt.values
+        self.outpath = ytt.out
+        # self.initialze()
 
     def initialze(self):
         if not self.main_path.exists():
@@ -139,7 +96,6 @@ class Encassist:
 
         process = subprocess.Popen(
             cmd,
-            cwd=str(project_path),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -152,35 +108,50 @@ class Encassist:
 
 
 def main(args):
-    _logger.debug(f"{project_path=}")
-
     if not ytt.Ytt().installed:
         _logger.fatal("Can't find ytt")
-        raise ValueError("Can't find ytt")
+        raise FileNotFoundError("Can't find ytt")
+
+    basedir = pathlib.Path(args.config_dir)
 
     if args.macos:
-        inpaths = [project_path / "installer/encassist/values/macos/values.yml"]
+        ytt_params = ytt.YttParams(
+            main=basedir / "encassist/encassist.yml",
+            values=[basedir / "encassist/values/macos/values.yml"],
+            out="macos.yml",
+        )
 
     elif args.win_avid:
-        inpaths = [
-            project_path / "installer/encassist/values/win/values.yml",
-            project_path / "installer/encassist/values/win/avid/values.yml",
-        ]
+        ytt_params = ytt.YttParams(
+            main=basedir / "encassist/encassist.yml",
+            values=[
+                basedir / "encassist/values/win/values.yml",
+                basedir / "encassist/values/win/avid/values.yml",
+            ],
+            out="avid.yml",
+        )
 
     elif args.linux:
-        inpaths = [project_path / "installer/encassist/values/linux/values.yml"]
+        ytt_params = ytt.YttParams(
+            main=basedir / "encassist/encassist.yml",
+            values=[basedir / "encassist/values/linux/values.yml"],
+            out="linux.yml",
+        )
 
     elif args.win_universal:
-        inpaths = [
-            project_path / "installer/encassist/values/win/values.yml",
-            project_path / "installer/encassist/values/win/universal/values.yml",
-        ]
+        ytt_params = ytt.YttParams(
+            main=basedir / "encassist/encassist.yml",
+            values=[
+                basedir / "encassist/values/win/values.yml",
+                basedir / "encassist/values/win/universal/values.yml",
+            ],
+            out="universal.yml",
+        )
 
     else:
         raise ValueError("encassist: no args")
 
-    outpath = project_path / "installer/encassist.yml"
-    enc = Encassist(values_yaml=inpaths, out_yaml=outpath)
+    enc = Encassist(args.config_dir, ytt_params)
     enc.run()
 
 

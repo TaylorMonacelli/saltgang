@@ -6,7 +6,6 @@ import typing
 from dataclasses import dataclass, field
 from typing import Any, List, Mapping
 
-from saltgang import args as argsmod
 from saltgang import common
 from saltgang import logger as loggermod
 from saltgang import ytt
@@ -18,7 +17,22 @@ _logger = logging.getLogger(__name__)
 
 
 def add_arguments(parser):
-    argsmod.add_common_args(parser)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="loglevel",
+        help="set loglevel to INFO",
+        action="store_const",
+        const=logging.INFO,
+    )
+    parser.add_argument(
+        "-vv",
+        "--very-verbose",
+        dest="loglevel",
+        help="set loglevel to DEBUG",
+        action="store_const",
+        const=logging.DEBUG,
+    )
     parser.add_argument(
         "--yaml-path",
         help="provide the path to encassist yaml file",

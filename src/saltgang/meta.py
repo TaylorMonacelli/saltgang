@@ -1,18 +1,33 @@
 import argparse
 import configparser
+import logging
 import pathlib
 import platform
 import subprocess
 import sys
 import tempfile
 
-from saltgang import args as argsmod
 from saltgang import common
 from saltgang import logger as loggermod
 
 
 def add_arguments(parser):
-    argsmod.add_common_args(parser)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="loglevel",
+        help="set loglevel to INFO",
+        action="store_const",
+        const=logging.INFO,
+    )
+    parser.add_argument(
+        "-vv",
+        "--very-verbose",
+        dest="loglevel",
+        help="set loglevel to DEBUG",
+        action="store_const",
+        const=logging.DEBUG,
+    )
 
 
 def add_parser(subparsers):

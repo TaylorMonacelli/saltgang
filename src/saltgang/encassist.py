@@ -3,6 +3,7 @@ import logging
 
 from omegaconf import OmegaConf
 
+from saltgang import conf_install
 from saltgang import logger as loggermod
 from saltgang import ytt as yttmod
 
@@ -33,7 +34,6 @@ def add_arguments(parser):
     )
     parser.add_argument(
         "--conf",
-        default="config.yml",
         help="path to config.yml",
     )
     parser.add_argument(
@@ -63,6 +63,9 @@ def main(args):
         raise FileNotFoundError("Can't find ytt")
 
     ytt_params = None
+
+    if not args.conf:
+        args.conf = conf_install.main()
 
     conf = OmegaConf.load(args.conf)
     conf.common.configdir = args.config_basedir

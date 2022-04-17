@@ -35,10 +35,8 @@ def is_different(conf1: pathlib.Path, conf2: pathlib.Path):
 
 
 def get_deployed_conf():
-    p1 = platformdirs.user_data_dir(appname, appauthor)
-    basedir = pathlib.Path(p1)
-    conf = basedir / get_package_conf().name
-    return conf
+    dd = platformdirs.user_data_dir(appname, appauthor)
+    return pathlib.Path(dd) / get_package_conf().name
 
 
 def get_package_conf():

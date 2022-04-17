@@ -26,8 +26,8 @@ def add_arguments(parser):
         help="path to config.yml",
     )
     parser.add_argument(
-        "--yaml-path",
-        help="provide the path to encassist yaml file",
+        "--outpath",
+        help="provide the path to where to write the resulting encassist yaml file",
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -74,7 +74,9 @@ def main(args):
     conf = OmegaConf.load(conf_path)
 
     values = conf.sku[sku].value_paths
-    outpath = conf.sku[sku].outpath
+
+    o = args.outpath if args.outpath else conf.sku[sku].outpath
+    conf.sku[sku].outpath = o
 
     b = args.config_basedir if args.config_basedir else conf.common.configdir
     conf.common.configdir = b
@@ -82,7 +84,7 @@ def main(args):
     ytt_params = yttmod.YttParams(
         main=conf.common.main,
         values=values,
-        outpath=outpath,
+        outpath=conf.sku[sku].outpath,
     )
 
     _logger.debug(ytt_params)

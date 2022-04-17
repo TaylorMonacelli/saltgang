@@ -67,6 +67,9 @@ def main(args):
         raise ValueError("encassist: no args")
 
     conf_path = confmod.get_deployed_conf()
+    if not conf_path.exists():
+        confmod.main(args)
+
     _logger.info(f"reading {conf_path}")
     conf = OmegaConf.load(conf_path)
 

@@ -29,12 +29,12 @@ def add_arguments(parser):
         "--outpath",
         help="provide the path to where to write the resulting encassist yaml file",
     )
-
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--macos", action="store_true")
-    group.add_argument("--linux", action="store_true")
-    group.add_argument("--win-avid", action="store_true")
-    group.add_argument("--win-universal", action="store_true")
+    parser.add_argument(
+        "--sku",
+        help="",
+        choices=["macos", "linux", "avid", "universal"],
+        required=True,
+    )
 
 
 def add_parser(subparsers):
@@ -47,36 +47,16 @@ def add_parser(subparsers):
 
 
 def main(args):
-    ytt_params = None
-    values = None
-    sku = None
-
-    if args.macos:
-        sku = "macos"
-
-    elif args.win_avid:
-        sku = "avid"
-
-    elif args.linux:
-        sku = "linux"
-
-    elif args.win_universal:
-        sku = "universal"
-
-    else:
-        raise ValueError("encassist: no args")
-
     conf_path = confmod.get_deployed_conf()
     if not conf_path.exists():
-        confmod.main(args)
-
+        confmod.install_conf(conf_path)
     _logger.info(f"reading {conf_path}")
     conf = OmegaConf.load(conf_path)
 
-    values = conf.sku[sku].value_paths
+    values = conf.sku[args.sku].value_paths
 
-    o = args.outpath if args.outpath else conf.sku[sku].outpath
-    conf.sku[sku].outpath = o
+    o = args.outpath if args.outpath else conf.sku[args.sku].outpath
+    conf.sku[args.sku].outpath = o
 
     b = args.config_basedir if args.config_basedir else conf.common.configdir
     conf.common.configdir = b
@@ -84,7 +64,7 @@ def main(args):
     ytt_params = yttmod.YttParams(
         main=conf.common.main,
         values=values,
-        outpath=conf.sku[sku].outpath,
+        outpath=conf.sku[args.sku].outpath,
     )
 
     _logger.debug(ytt_params)

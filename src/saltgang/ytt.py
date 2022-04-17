@@ -7,28 +7,10 @@ import subprocess
 from dataclasses import dataclass
 from typing import List
 
+from saltgang import args as argsmod
 from saltgang import logger as loggermod
 
 _logger = logging.getLogger(__name__)
-
-
-def add_arguments(parser):
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO,
-    )
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG,
-    )
 
 
 @dataclass(init=False)
@@ -38,18 +20,10 @@ class YttParams:
     outpath: pathlib.Path
     basedir: pathlib.Path = None
 
-    def set_basedir(self, path: pathlib.Path) -> None:
-        self.basedir = path
-
     def __init__(self, main: str, values: List[str], outpath: str) -> None:
-        self.main = pathlib.Path(main)
-        self.values = [pathlib.Path(x) for x in values]
-        self.outpath = pathlib.Path(outpath)
-
-    def validate(self):
-        for path in [self.main, *self.values]:
-            if not path.exists():
-                raise FileNotFoundError(path)
+        self.main = pathlib.Path(main).resolve()
+        self.values = [pathlib.Path(x).resolve() for x in values]
+        self.outpath = pathlib.Path(outpath).resolve()
 
 
 class Ytt:
@@ -115,7 +89,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    add_arguments(parser)
+    argsmod.add_common_args(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)
 

@@ -3,7 +3,7 @@ import pathlib
 import sys
 
 from saltgang import args as argsmod
-from saltgang import conf_install, encassist, fetch
+from saltgang import encassist, fetch
 from saltgang import logger as loggermod
 from saltgang import meta, panel, quickstart
 from saltgang import settings as settingsmod
@@ -19,8 +19,6 @@ def main(args):
     args = argsmod.parser.parse_args(args)
     loggermod.setup_logging(args.loglevel)
     _logger.debug("Starting script...")
-
-    conf_install.main()
 
     if sys.version_info < (3, 7):
         raise Exception("need at least python3.7")

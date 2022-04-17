@@ -3,7 +3,8 @@ import logging
 
 from omegaconf import OmegaConf
 
-from saltgang import conf_install
+from saltgang import args as argsmod
+from saltgang import conf as confmod
 from saltgang import logger as loggermod
 from saltgang import ytt as yttmod
 
@@ -12,25 +13,13 @@ _logger = logging.getLogger(__name__)
 
 def add_arguments(parser):
     parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO,
-    )
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG,
-    )
-    parser.add_argument(
-        "--config_basedir",
-        required=True,
-        help="provide the base direct path to encassist yaml files",
+        "--config-basedir",
+        help=(
+            "Provide the base directry path to encassist.yml yaml"
+            " files.  For example, if you did:"
+            " 'git clone https://gitlab.com/streambox/spectra_encassist tmp' "
+            " then you would provide this '--config-basedir tmp'."
+        ),
     )
     parser.add_argument(
         "--conf",
@@ -58,18 +47,7 @@ def add_parser(subparsers):
 
 
 def main(args):
-    if not yttmod.Ytt.check_installed():
-        _logger.fatal("Can't find ytt")
-        raise FileNotFoundError("Can't find ytt")
-
     ytt_params = None
-
-    if not args.conf:
-        args.conf = conf_install.main()
-
-    conf = OmegaConf.load(args.conf)
-    conf.common.configdir = args.config_basedir
-
     values = None
     sku = None
 
@@ -88,8 +66,15 @@ def main(args):
     else:
         raise ValueError("encassist: no args")
 
+    conf_path = confmod.get_deployed_conf()
+    _logger.info(f"reading {conf_path}")
+    conf = OmegaConf.load(conf_path)
+
     values = conf.sku[sku].value_paths
     outpath = conf.sku[sku].outpath
+
+    b = args.config_basedir if args.config_basedir else conf.common.configdir
+    conf.common.configdir = b
 
     ytt_params = yttmod.YttParams(
         main=conf.common.main,
@@ -97,13 +82,19 @@ def main(args):
         outpath=outpath,
     )
 
-    ytt_params.set_basedir(conf.common.configdir)
+    _logger.debug(ytt_params)
     ytt = yttmod.Ytt(ytt_params)
+
+    if not yttmod.Ytt.check_installed():
+        _logger.fatal("Can't find ytt")
+        raise FileNotFoundError("Can't find ytt")
+
     ytt.run()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    argsmod.add_common_args(parser)
     add_arguments(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)

@@ -1,5 +1,5 @@
 common:
-  configdir: build/config
+  configdir: spectra_encassist
   main: ${.configdir}/encassist/encassist.yml
   outdir: ${.configdir}
 sku:

@@ -46,6 +46,9 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
+add_parser(argsmod.subparsers)
+
+
 def main(args):
     conf_path = confmod.get_deployed_conf()
     if not conf_path.exists():

@@ -11,41 +11,6 @@ from saltgang import ytt as yttmod
 _logger = logging.getLogger(__name__)
 
 
-def add_arguments(parser):
-    parser.add_argument(
-        "--config-basedir",
-        help=(
-            "Provide the base directry path to encassist.yml yaml"
-            " files.  For example, if you did:"
-            " 'git clone https://gitlab.com/streambox/spectra_encassist tmp' "
-            " then you would provide this '--config-basedir tmp'."
-        ),
-    )
-    parser.add_argument(
-        "--conf",
-        help="path to config.yml",
-    )
-    parser.add_argument(
-        "--outpath",
-        help="provide the path to where to write the resulting encassist yaml file",
-    )
-    parser.add_argument(
-        "--sku",
-        help="",
-        choices=["macos", "linux", "avid", "universal"],
-        required=True,
-    )
-
-
-def add_parser(subparsers):
-    parser = subparsers.add_parser(
-        "encassist",
-        aliases=["enc"],
-        help="using ytt, merge specific encassist variables into global encassist.yml",
-    )
-    add_arguments(parser)
-
-
 def main(args):
     conf_path = confmod.get_deployed_conf()
     if not conf_path.exists():
@@ -80,7 +45,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     argsmod.add_common_args(parser)
-    add_arguments(parser)
+    # add_arguments(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)
 

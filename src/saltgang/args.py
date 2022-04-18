@@ -2,7 +2,7 @@ import argparse
 import logging
 import sys
 
-from saltgang import __version__, encassist, fetch, meta, panel, quickstart, settings
+from saltgang import __version__, fetch, meta, panel, quickstart, settings
 
 
 def _error(parser):
@@ -51,7 +51,37 @@ subparsers = parser.add_subparsers(
     dest="command",
 )
 
-encassist.add_parser(subparsers)
+
+parser = subparsers.add_parser(
+    "encassist",
+    aliases=["enc"],
+    help="using ytt, merge specific encassist variables into global encassist.yml",
+)
+parser.add_argument(
+    "--config-basedir",
+    help=(
+        "Provide the base directry path to encassist.yml yaml"
+        " files.  For example, if you did:"
+        " 'git clone https://gitlab.com/streambox/spectra_encassist tmp' "
+        " then you would provide this '--config-basedir tmp'."
+    ),
+)
+parser.add_argument(
+    "--conf",
+    help="path to config.yml",
+)
+parser.add_argument(
+    "--outpath",
+    help="provide the path to where to write the resulting encassist yaml file",
+)
+parser.add_argument(
+    "--sku",
+    help="",
+    choices=["macos", "linux", "avid", "universal"],
+    required=True,
+)
+
+
 fetch.add_parser(subparsers)
 meta.add_parser(subparsers)
 panel.add_parser(subparsers)

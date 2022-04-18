@@ -132,9 +132,6 @@ def main(args):
     Helper(args.url).download()
 
 
-add_parser(argsmod.subparsers)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     argsmod.add_common_args(parser)

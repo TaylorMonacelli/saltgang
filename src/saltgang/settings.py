@@ -114,9 +114,6 @@ def main(args):
     print(rendered)
 
 
-add_parser(argsmod.subparsers)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)

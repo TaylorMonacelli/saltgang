@@ -68,9 +68,6 @@ https://streambox-spectra.s3-us-west-2.amazonaws.com/{version}/win/spectra_win_{
     print(urls)
 
 
-add_parser(argsmod.subparsers)
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)

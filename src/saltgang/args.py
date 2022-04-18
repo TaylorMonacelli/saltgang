@@ -2,7 +2,7 @@ import argparse
 import logging
 import sys
 
-from saltgang import __version__
+from saltgang import __version__, encassist, fetch, meta, panel, quickstart, settings
 
 
 def _error(parser):
@@ -50,3 +50,10 @@ subparsers = parser.add_subparsers(
     required=True,
     dest="command",
 )
+
+encassist.add_parser(subparsers)
+fetch.add_parser(subparsers)
+meta.add_parser(subparsers)
+panel.add_parser(subparsers)
+quickstart.add_parser(subparsers)
+settings.add_parser(subparsers)

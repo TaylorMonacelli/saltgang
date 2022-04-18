@@ -52,7 +52,6 @@ def main(args):
         confmod.install_conf(conf_path)
     _logger.info(f"reading {conf_path}")
     conf = OmegaConf.load(conf_path)
-
     values = conf.sku[args.sku].value_paths
 
     o = args.outpath if args.outpath else conf.sku[args.sku].outpath
@@ -66,6 +65,7 @@ def main(args):
         values=values,
         outpath=conf.sku[args.sku].outpath,
     )
+    print(ytt_params)
 
     _logger.debug(ytt_params)
     ytt = yttmod.Ytt(ytt_params)

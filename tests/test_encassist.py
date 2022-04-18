@@ -1,4 +1,8 @@
 import argparse
+import os
+import pathlib
+import subprocess
+import sys
 
 import pytest
 
@@ -12,6 +16,59 @@ def my_parser():
     argsmod.add_common_args(parser)
     encassist.add_arguments(parser)
     return parser
+
+
+def test_no_config_causes_error5(caplog, my_parser, tmp_path):
+    args = my_parser.parse_args(
+        ["--sku", "macos", "--config-basedir", str(tmp_path.parent)]
+    )
+    encassist.main(args)
+    assert "Error: Checking file" in caplog.text
+
+
+def foo():
+    cmd = ["ls", "/tmp1"]
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    out, err = proc.communicate()
+
+    return_code = proc.poll()
+    out = out.decode(sys.stdin.encoding)
+    err = err.decode(sys.stdin.encoding)
+
+    ex = subprocess.CalledProcessError(return_code, cmd=cmd, output=out)
+    ex.stdout, ex.stderr = out, err
+
+    if proc.returncode not in [0]:
+        raise ex
+
+
+def test_foo(capfd):
+    with pytest.raises(subprocess.CalledProcessError):
+        foo()  # Writes "Hello World!" to stdout
+
+
+@pytest.mark.skip(reason="not sure how to handle this one")
+def test_no_config_causes_error1(capsys, my_parser, tmp_path):
+    p = pathlib.Path(tmp_path.parent)
+    os.chdir(p)
+    args = my_parser.parse_args(["--sku", "macos"])
+    with pytest.raises(subprocess.CalledProcessError):
+        encassist.main(args)
+
+
+@pytest.mark.skip(reason="not sure how to handle this one")
+def test_no_config_causes_error(capsys, my_parser, tmp_path):
+    p = pathlib.Path(tmp_path.parent)
+    os.chdir(p)
+    args = my_parser.parse_args(["--sku", "macos"])
+    encassist.main(args)
+    captured = capsys.readouterr()
+    assert "Error" in captured.err
 
 
 def test_empty_args_causes_systemexit(my_parser):

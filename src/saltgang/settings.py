@@ -19,6 +19,7 @@ _logger = logging.getLogger(__name__)
 
 def add_arguments(parser):
     parser.add_argument("-yp", "--yaml-path", required=False)
+    parser.add_argument("--outpath", required=False)
 
     parser_group = parser.add_mutually_exclusive_group()
     parser_group.add_argument(
@@ -110,8 +111,12 @@ def main(args):
     yaml_path = pathlib.Path(args.yaml_path) if args.yaml_path else None
     settings = Settings.from_file(yaml_path)
     rendered = settings.view(args.view)
-    _logger.debug(f"rendered view {args.view}")
+    _logger.debug(f"rendered view {args.view} to stdout")
     print(rendered)
+    if args.outpath:
+        outpath = pathlib.Path(args.outpath)
+        _logger.debug(f"rendered view {args.view} to {outpath}")
+        outpath.write_text(rendered)
 
 
 add_parser(argsmod.subparsers)

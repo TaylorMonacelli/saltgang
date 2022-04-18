@@ -16,6 +16,7 @@ import magic
 import pdfminer.high_level
 import yaml
 
+from saltgang import args as argsmod
 from saltgang import common
 from saltgang import logger as loggermod
 
@@ -37,23 +38,6 @@ output-quickstart-guide/staging
 
 
 def add_arguments(parser):
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO,
-    )
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG,
-    )
-
     parser.add_argument("--force-fetch", default=False, action="store_true")
     parser.add_argument("--upload", default=False, action="store_true")
 
@@ -247,9 +231,13 @@ def main(args):
             logger.warning("{}".format(stderr.decode()))
 
 
+add_parser(argsmod.subparsers)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
+    argsmod.add_common_args(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)
 

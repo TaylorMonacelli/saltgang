@@ -1,3 +1,4 @@
+import argparse
 import dataclasses
 import logging
 import pathlib
@@ -9,15 +10,14 @@ import pkg_resources
 import xdgappdirs
 import yaml
 
+from saltgang import args as argsmod
 from saltgang import common
+from saltgang import logger as loggermod
+
+_logger = logging.getLogger(__name__)
 
 
-def add_parser(subparsers):
-    parser = subparsers.add_parser(
-        "config",
-        help="config help",
-        aliases=["settings"],
-    )
+def add_arguments(parser):
     parser.add_argument("-yp", "--yaml-path", required=False)
 
     parser_group = parser.add_mutually_exclusive_group()
@@ -40,6 +40,15 @@ def add_parser(subparsers):
     parser.set_defaults(view="ini")
 
 
+def add_parser(subparsers):
+    parser = subparsers.add_parser(
+        "config",
+        help="config help",
+        aliases=["settings"],
+    )
+    add_arguments(parser)
+
+
 class Setting:
     def __init__(self, iterable=(), **kwargs):
         self.__dict__.update(iterable, **kwargs)
@@ -57,13 +66,11 @@ class Settings:
 
     @classmethod
     def config_path(cls):
-        logger = logging.getLogger(__name__)
-
         appname = __name__
         appauthor = "Streambox"
 
         _str = xdgappdirs.user_config_dir(appname, appauthor)
-        logger.debug("{} will look for config in path {}".format(__name__, _str))
+        _logger.debug("{} will look for config in path {}".format(__name__, _str))
         return pathlib.Path(_str)
 
     @classmethod
@@ -97,3 +104,24 @@ class Settings:
     def __iter__(self):
         for setting in self._list:
             yield setting
+
+
+def main(args):
+    yaml_path = pathlib.Path(args.yaml_path) if args.yaml_path else None
+    settings = Settings.from_file(yaml_path)
+    rendered = settings.view(args.view)
+    _logger.debug(f"rendered view {args.view}")
+    print(rendered)
+
+
+add_parser(argsmod.subparsers)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    add_arguments(parser)
+    argsmod.add_common_args(parser)
+    args = parser.parse_args()
+    loggermod.setup_logging(args.loglevel)
+
+    main(args)

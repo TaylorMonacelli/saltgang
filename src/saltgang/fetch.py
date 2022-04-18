@@ -11,27 +11,11 @@ import zipfile
 
 import requests
 
+from saltgang import args as argsmod
 from saltgang import logger as loggermod
 
 
 def add_arguments(parser):
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO,
-    )
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG,
-    )
-
     parser.add_argument("url", help="url to download")
 
 
@@ -148,8 +132,12 @@ def main(args):
     Helper(args.url).download()
 
 
+add_parser(argsmod.subparsers)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    argsmod.add_common_args(parser)
     add_arguments(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)

@@ -46,9 +46,6 @@ def add_parser(subparsers):
     add_arguments(parser)
 
 
-add_parser(argsmod.subparsers)
-
-
 def main(args):
     conf_path = confmod.get_deployed_conf()
     if not conf_path.exists():
@@ -78,6 +75,9 @@ def main(args):
         raise FileNotFoundError("Can't find ytt")
 
     ytt.run()
+
+
+add_parser(argsmod.subparsers)
 
 
 if __name__ == "__main__":

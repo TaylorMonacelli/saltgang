@@ -72,6 +72,7 @@ import zipfile
 
 import magic
 
+from saltgang import args as argsmod
 from saltgang import common
 from saltgang import logger as loggermod
 
@@ -80,22 +81,7 @@ this.project_path = None
 
 
 def add_arguments(parser):
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO,
-    )
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG,
-    )
+    pass
 
 
 def add_parser(subparsers):
@@ -281,8 +267,11 @@ def main(args):
         shutil.copy(path, appdir / path.name)
 
 
+add_parser(argsmod.subparsers)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    argsmod.add_common_args(parser)
     add_arguments(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)

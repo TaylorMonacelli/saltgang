@@ -1,33 +1,18 @@
 import argparse
 import configparser
-import logging
 import pathlib
 import platform
 import subprocess
 import sys
 import tempfile
 
+from saltgang import args as argsmod
 from saltgang import common
 from saltgang import logger as loggermod
 
 
 def add_arguments(parser):
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        dest="loglevel",
-        help="set loglevel to INFO",
-        action="store_const",
-        const=logging.INFO,
-    )
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        dest="loglevel",
-        help="set loglevel to DEBUG",
-        action="store_const",
-        const=logging.DEBUG,
-    )
+    pass
 
 
 def add_parser(subparsers):
@@ -50,7 +35,7 @@ def to_clipboard(text):
         stderr=subprocess.PIPE,
         shell=True,
     )
-    stdout, stderr = pbcopy.communicate()
+    _, stderr = pbcopy.communicate()
     if stderr:
         print("couldn't copy to clipboard", file=sys.stderr)
 
@@ -83,9 +68,13 @@ https://streambox-spectra.s3-us-west-2.amazonaws.com/{version}/win/spectra_win_{
     print(urls)
 
 
+add_parser(argsmod.subparsers)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)
+    argsmod.add_common_args(parser)
     args = parser.parse_args()
     loggermod.setup_logging(args.loglevel)
 

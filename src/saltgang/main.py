@@ -1,5 +1,4 @@
 import logging
-import pathlib
 import sys
 
 from saltgang import args as argsmod
@@ -27,11 +26,7 @@ def main(args):
         fetch.Helper(args.url).download()
 
     elif args.command in ["settings", "config"]:
-        yaml_path = pathlib.Path(args.yaml_path) if args.yaml_path else None
-        settings = settingsmod.Settings.from_file(yaml_path)
-        rendered = settings.view(args.view)
-        _logger.debug(f"rendered view {args.view}")
-        print(rendered)
+        settingsmod.main(args)
 
     elif args.command == "url":
         meta.main(args)

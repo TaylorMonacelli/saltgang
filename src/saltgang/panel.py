@@ -267,6 +267,8 @@ def main(args):
         shutil.copy(path, appdir / path.name)
 
 
+add_parser(argsmod.subparsers)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     argsmod.add_common_args(parser)

@@ -77,6 +77,8 @@ def main(args):
     ytt.run()
 
 
+add_parser(argsmod.subparsers)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     argsmod.add_common_args(parser)

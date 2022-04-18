@@ -231,6 +231,8 @@ def main(args):
             logger.warning("{}".format(stderr.decode()))
 
 
+add_parser(argsmod.subparsers)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     add_arguments(parser)

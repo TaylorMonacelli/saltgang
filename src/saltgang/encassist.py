@@ -11,6 +11,13 @@ from saltgang import ytt as yttmod
 _logger = logging.getLogger(__name__)
 
 
+class Highlander(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if getattr(namespace, self.dest, None) is not None:
+            raise argparse.ArgumentError(self, "There can be only one.")
+        setattr(namespace, self.dest, values)
+
+
 def add_arguments(parser):
     parser.add_argument(
         "--config-basedir",
@@ -32,6 +39,7 @@ def add_arguments(parser):
     parser.add_argument(
         "--sku",
         help="",
+        action=Highlander,
         choices=["macos", "linux", "avid", "universal"],
         required=True,
     )

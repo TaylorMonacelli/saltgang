@@ -40,7 +40,7 @@ def add_arguments(parser):
         "--sku",
         help="",
         action=Highlander,
-        choices=["macos", "linux", "avid", "universal"],
+        choices=["macos", "linux", "avid", "universal", "cdi"],
         required=True,
     )
 

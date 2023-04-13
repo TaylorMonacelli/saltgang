@@ -21,3 +21,9 @@ sku:
     value_paths:
       - ${common.configdir}/encassist/values/win/values.yml
       - ${common.configdir}/encassist/values/win/universal/values.yml
+  cdi:
+    outpath: ${common.outdir}/cdi.yml
+    value_paths:
+      - ${common.configdir}/encassist/values/win/values.yml
+      - ${common.configdir}/encassist/values/win/universal/values.yml
+      - ${common.configdir}/encassist/values/win/universal/cdi/values.yml

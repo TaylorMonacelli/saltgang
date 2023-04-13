@@ -73,8 +73,6 @@ def main(args):
         values=values,
         outpath=conf.sku[args.sku].outpath,
     )
-    print(ytt_params)
-
     _logger.debug(ytt_params)
     ytt = yttmod.Ytt(ytt_params)
 

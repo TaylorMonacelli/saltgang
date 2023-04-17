@@ -33,6 +33,10 @@ def add_arguments(parser):
         help="path to config.yml",
     )
     parser.add_argument(
+        "--overwrite-conf",
+        help="even if config.yml is found, install a new copy",
+    )
+    parser.add_argument(
         "--outpath",
         help="provide the path to where to write the resulting encassist yaml file",
     )
@@ -56,6 +60,8 @@ def add_parser(subparsers):
 
 def main(args):
     conf_path = confmod.get_deployed_conf()
+    if args.overwrite_conf:
+        confmod.install_conf(conf_path)
     if not conf_path.exists():
         confmod.install_conf(conf_path)
     _logger.info(f"reading {conf_path}")

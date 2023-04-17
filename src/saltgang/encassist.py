@@ -33,8 +33,9 @@ def add_arguments(parser):
         help="path to config.yml",
     )
     parser.add_argument(
-        "--overwrite-conf",
+        "--force-overwrite-conf",
         help="even if config.yml is found, install a new copy",
+        action="store_true",
     )
     parser.add_argument(
         "--outpath",

@@ -62,7 +62,7 @@ def add_parser(subparsers):
 def main(args):
     conf_path = confmod.get_deployed_conf()
     if args.force_overwrite_conf:
-        confmod.install_conf(conf_path)
+        conf_path.unlink(missing_ok=True)
     if not conf_path.exists():
         confmod.install_conf(conf_path)
     _logger.info(f"reading {conf_path}")
